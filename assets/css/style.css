@@ -1,0 +1,526 @@
+/**
+ * CTU Registrar System - Modern Minimalist Theme
+ * 
+ * Clean, subtle, modern enterprise-academic aesthetic:
+ * - Clean Inter typography with system fallback
+ * - Soft neutral slate background (#f8fafc) with crisp white cards
+ * - Crisp, subtle border definitions (slate-200) and delicate shadows (no heavy animations)
+ * - Harmonious CTU blue palette with soft pastel badge accents
+ */
+
+/* ============================================================
+   1. ROOT VARIABLES & DESIGN TOKENS
+   ============================================================ */
+:root {
+    --primary-color: #1e40af;       /* CTU royal blue */
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --primary-border: #bfdbfe;
+    
+    --surface-bg: #f8fafc;          /* Modern slate-50 neutral bg */
+    --surface-card: #ffffff;
+    --border-color: #e2e8f0;        /* Subtle slate-200 border */
+    --border-hover: #cbd5e1;
+    
+    --text-main: #0f172a;           /* Crisp slate-900 */
+    --text-muted: #64748b;          /* Soft slate-500 */
+    --text-subtle: #94a3b8;
+    
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    
+    --shadow-subtle: 0 1px 3px 0 rgba(15, 23, 42, 0.05);
+    --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.04), 0 2px 4px -2px rgba(15, 23, 42, 0.03);
+    --shadow-hover: 0 6px 12px -2px rgba(15, 23, 42, 0.06);
+    
+    --transition-fast: all 0.15s ease-in-out;
+}
+
+/* ============================================================
+   2. GLOBAL BASE STYLES
+   ============================================================ */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--surface-bg);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+}
+
+main {
+    flex: 1;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-main);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   3. MODERN NAVBAR
+   ============================================================ */
+.navbar {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 0;
+    box-shadow: var(--shadow-subtle);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--primary-color) !important;
+    letter-spacing: -0.02em;
+}
+
+.navbar-brand i {
+    font-size: 1.35rem;
+    color: var(--primary-color);
+}
+
+.navbar-nav .nav-link {
+    color: var(--text-muted) !important;
+    font-weight: 500;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.85rem !important;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--primary-color) !important;
+    background-color: var(--primary-light);
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--primary-color) !important;
+    background-color: var(--primary-light);
+    font-weight: 600;
+}
+
+.navbar-toggler {
+    border: 1px solid var(--border-color);
+    padding: 0.35rem 0.6rem;
+}
+
+.navbar-toggler-icon {
+    filter: invert(30%);
+}
+
+.dropdown-menu {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    font-size: 0.875rem;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.8rem;
+    color: var(--text-main);
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+/* ============================================================
+   4. CARDS & SURFACES
+   ============================================================ */
+.card {
+    background-color: var(--surface-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Dashboard Summary Cards - Clean Minimalist Style */
+.dashboard-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-fast);
+    background-color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-hover);
+}
+
+.dashboard-card .card-body {
+    padding: 1.25rem;
+}
+
+.dashboard-card .card-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.2rem;
+    color: var(--text-main);
+}
+
+.dashboard-card .card-label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dashboard-card .card-icon {
+    font-size: 1.6rem;
+    opacity: 0.9;
+}
+
+/* Modern Card Border Accents (Subtle left border accent) */
+.card-blue { border-left: 4px solid #2563eb !important; }
+.card-blue .card-icon { color: #2563eb; }
+
+.card-green { border-left: 4px solid #16a34a !important; }
+.card-green .card-icon { color: #16a34a; }
+
+.card-orange { border-left: 4px solid #ea580c !important; }
+.card-orange .card-icon { color: #ea580c; }
+
+.card-red { border-left: 4px solid #dc2626 !important; }
+.card-red .card-icon { color: #dc2626; }
+
+.card-purple { border-left: 4px solid #7c3aed !important; }
+.card-purple .card-icon { color: #7c3aed; }
+
+.card-teal { border-left: 4px solid #0d9488 !important; }
+.card-teal .card-icon { color: #0d9488; }
+
+/* ============================================================
+   5. QUEUE DISPLAYS
+   ============================================================ */
+.queue-number-display {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    letter-spacing: 2px;
+    line-height: 1.1;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+}
+
+.queue-now-serving {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: #15803d;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   6. MODERN SUBTLE STATUS BADGES
+   ============================================================ */
+.badge {
+    font-weight: 500;
+    font-size: 0.76rem;
+    padding: 0.35em 0.7em;
+    border-radius: 9999px; /* Modern Pill */
+    letter-spacing: 0.02em;
+    border: 1px solid transparent;
+}
+
+/* Soft, contemporary tinted badges */
+.badge-waiting,
+.badge-pending {
+    background-color: #fef3c7 !important;
+    color: #92400e !important;
+    border-color: #fde68a !important;
+}
+
+.badge-serving,
+.badge-processing {
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
+    border-color: #bfdbfe !important;
+}
+
+.badge-completed,
+.badge-ready {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #bbf7d0 !important;
+}
+
+.badge-skipped {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: #e2e8f0 !important;
+}
+
+.badge-rejected {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+}
+
+/* ============================
+   7. CLEAN DATA TABLES
+   ============================ */
+.table-responsive {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    background-color: #ffffff;
+}
+
+.table {
+    margin-bottom: 0;
+    color: var(--text-main);
+}
+
+.table th {
+    background-color: #f8fafc !important;
+    font-weight: 600;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.85rem 1rem;
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    font-size: 0.88rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ============================================================
+   8. FORMS & CONTROLS
+   ============================================================ */
+.form-label {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    padding: 0.55rem 0.85rem;
+    color: var(--text-main);
+    background-color: #ffffff;
+    transition: var(--transition-fast);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    outline: none;
+}
+
+.input-group-text {
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ============================================================
+   9. BUTTONS
+   ============================================================ */
+.btn {
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-sm {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+}
+
+.btn-lg {
+    font-size: 0.95rem;
+    padding: 0.65rem 1.4rem;
+}
+
+/* ============================================================
+   10. AUTH PAGES (LOGIN / REGISTER)
+   ============================================================ */
+.auth-container {
+    max-width: 440px;
+    margin: 2.5rem auto;
+    width: 100%;
+}
+
+.auth-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+    background-color: #ffffff;
+    overflow: hidden;
+}
+
+.auth-card .card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    padding: 2.25rem 1.75rem 1.25rem 1.75rem;
+}
+
+.auth-card .card-header img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
+}
+
+.auth-card .card-header h4 {
+    margin: 0.25rem 0 0.15rem 0;
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--text-main);
+}
+
+.auth-card .card-header small {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.auth-card .card-body {
+    padding: 1.75rem;
+}
+
+/* ============================================================
+   11. NOTIFICATIONS
+   ============================================================ */
+.notification-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition-fast);
+}
+
+.notification-item:last-child {
+    border-bottom: 0;
+}
+
+.notification-item:hover {
+    background-color: #f8fafc;
+}
+
+.notification-item.unread {
+    background-color: var(--primary-light);
+    border-left: 3px solid var(--primary-color);
+}
+
+/* ============================================================
+   12. FOOTER & UTILITIES
+   ============================================================ */
+footer {
+    background-color: #ffffff !important;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 0.825rem;
+}
+
+.section-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 2.75rem;
+    color: var(--text-subtle);
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+/* Hero card styling */
+.hero-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 3.5rem 2rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .queue-number-display {
+        font-size: 2.75rem;
+    }
+    .queue-now-serving {
+        font-size: 2.2rem;
+    }
+    .auth-container {
+        margin: 1.5rem auto;
+        padding: 0 0.5rem;
+    }
+}
