@@ -2,17 +2,12 @@
 /**
  * Student Dashboard (student/dashboard.php)
  * 
- * Main hub for logged-in students.
- * - Shows student profile summary
- * - Displays active queue status for today
- * - Shows recent document requests
- * - Provides quick action buttons
+ * Main hub for logged-in students with SWU/CTU clean aesthetic.
  */
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 
-// Role-based protection: only students can view this page
 requireRole('student');
 
 $user_id    = $_SESSION['user_id'];
@@ -64,23 +59,27 @@ $page_title = 'Student Dashboard';
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<!-- Welcome Banner -->
-<div class="card mb-4">
-    <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+<!-- Clean Campus Hero Header -->
+<div class="student-hero-banner">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 position-relative" style="z-index: 1;">
         <div>
-            <div class="text-muted small text-uppercase fw-semibold mb-1">Student Portal</div>
-            <h3 class="mb-1">Hello, <?php echo sanitize($full_name); ?></h3>
-            <div class="text-muted small">
+            <div class="hero-badge">
+                <i class="bi bi-shield-check"></i> CTU Student Portal
+            </div>
+            <h2>Welcome, <?php echo sanitize($full_name); ?></h2>
+            <div class="meta-info">
                 <span><i class="bi bi-person-badge me-1"></i>Student ID: <strong><?php echo sanitize($student_id); ?></strong></span>
-                <span class="mx-2">&bull;</span>
+                <span class="mx-2 opacity-50">&bull;</span>
                 <span><i class="bi bi-calendar3 me-1"></i><?php echo date('F d, Y'); ?></span>
+                <span class="mx-2 opacity-50">&bull;</span>
+                <span><i class="bi bi-geo-alt me-1"></i>Daanbantayan Campus</span>
             </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="request_document.php" class="btn btn-primary">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="<?php echo url('student/request_document.php'); ?>" class="btn btn-hero-action px-3 py-2">
                 <i class="bi bi-file-earmark-plus me-1"></i>Request Document
             </a>
-            <a href="get_queue.php" class="btn btn-outline-primary">
+            <a href="<?php echo url('student/get_queue.php'); ?>" class="btn btn-hero-outline px-3 py-2">
                 <i class="bi bi-ticket-perforated me-1"></i>Get Queue Ticket
             </a>
         </div>
@@ -90,9 +89,11 @@ include __DIR__ . '/../includes/header.php';
 <div class="row g-4">
     <!-- Active Queue Card -->
     <div class="col-lg-5">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-ticket-perforated text-primary me-2"></i>My Daily Queue Status</span>
+        <div class="card h-100 shadow-sm border">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                <div class="fw-semibold text-dark d-flex align-items-center">
+                    <i class="bi bi-ticket-perforated text-primary me-2 fs-5"></i>Daily Queue Ticket
+                </div>
                 <?php if ($active_queue): ?>
                     <span class="badge badge-<?php echo strtolower($active_queue['status']); ?>">
                         <?php echo sanitize($active_queue['status']); ?>
@@ -101,30 +102,36 @@ include __DIR__ . '/../includes/header.php';
             </div>
             <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
                 <?php if ($active_queue): ?>
-                    <div class="text-muted small text-uppercase fw-semibold mb-1">Your Queue Number</div>
-                    <div class="queue-number-display mb-2">
-                        <?php echo sanitize($active_queue['queue_number']); ?>
-                    </div>
-                    <div class="text-muted small mb-3">
-                        <i class="bi bi-tag me-1"></i>Service: <strong><?php echo sanitize($active_queue['service_type']); ?></strong>
-                    </div>
-                    
-                    <div class="p-3 bg-light rounded-3 border mb-3">
-                        <div class="text-muted small">Counter Currently Serving</div>
-                        <div class="queue-now-serving mt-1">
-                            <?php echo $now_serving ? sanitize($now_serving) : '&mdash;'; ?>
+                    <div class="queue-ticket-box mb-3">
+                        <div class="queue-ticket-title">Your Active Ticket</div>
+                        <div class="queue-big-number">
+                            <?php echo sanitize($active_queue['queue_number']); ?>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-tag me-1"></i>Service: <strong><?php echo sanitize($active_queue['service_type']); ?></strong>
                         </div>
                     </div>
                     
-                    <a href="my_queue.php" class="btn btn-outline-primary btn-sm mx-auto">
-                        View Live Queue Details <i class="bi bi-arrow-right ms-1"></i>
+                    <div class="mb-3">
+                        <div class="serving-display-pill">
+                            <span class="small text-uppercase text-light opacity-75">Serving Now:</span>
+                            <span class="serving-number-text">
+                                <?php echo $now_serving ? sanitize($now_serving) : '&mdash;'; ?>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <a href="<?php echo url('student/my_queue.php'); ?>" class="btn btn-outline-primary btn-sm mx-auto">
+                        <i class="bi bi-broadcast me-1"></i>Live Queue Details &rarr;
                     </a>
                 <?php else: ?>
-                    <div class="empty-state py-3">
-                        <i class="bi bi-ticket text-muted" style="font-size: 2.5rem;"></i>
-                        <h6 class="fw-semibold mt-2 mb-1">No Active Queue Ticket</h6>
-                        <p class="text-muted small mb-3">Need to visit the Registrar today? Generate a queue number online.</p>
-                        <a href="get_queue.php" class="btn btn-primary btn-sm">
+                    <div class="empty-state py-4">
+                        <div class="d-inline-flex p-3 bg-light text-primary rounded-circle mb-3">
+                            <i class="bi bi-ticket-perforated fs-1"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">No Active Queue Ticket</h6>
+                        <p class="text-muted small mb-3">Visiting the campus Registrar today? Generate your daily queue ticket online to monitor your turn.</p>
+                        <a href="<?php echo url('student/get_queue.php'); ?>" class="btn btn-primary btn-sm px-3">
                             <i class="bi bi-plus-lg me-1"></i>Get Queue Number
                         </a>
                     </div>
@@ -135,21 +142,25 @@ include __DIR__ . '/../includes/header.php';
 
     <!-- Recent Document Requests -->
     <div class="col-lg-7">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-folder2-open text-primary me-2"></i>Recent Document Requests</span>
-                <a href="my_requests.php" class="small text-decoration-none">View All <i class="bi bi-arrow-right"></i></a>
+        <div class="card h-100 shadow-sm border">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
+                <div class="fw-semibold text-dark d-flex align-items-center">
+                    <i class="bi bi-folder2-open text-primary me-2 fs-5"></i>Recent Document Applications
+                </div>
+                <a href="<?php echo url('student/my_requests.php'); ?>" class="small text-decoration-none fw-medium text-primary">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
             <div class="card-body p-0">
                 <?php if ($recent_requests->num_rows > 0): ?>
                     <div class="table-responsive border-0">
-                        <table class="table align-middle">
-                            <thead>
+                        <table class="table align-middle mb-0">
+                            <thead class="bg-light">
                                 <tr>
-                                    <th>Tracking #</th>
-                                    <th>Document</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
+                                    <th class="ps-3 py-2 text-muted small fw-semibold">Tracking #</th>
+                                    <th class="py-2 text-muted small fw-semibold">Document</th>
+                                    <th class="py-2 text-muted small fw-semibold">Status</th>
+                                    <th class="pe-3 py-2 text-muted small fw-semibold text-end">Date</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -164,16 +175,16 @@ include __DIR__ . '/../includes/header.php';
                                     };
                                 ?>
                                     <tr>
-                                        <td>
-                                            <code class="fw-semibold text-primary"><?php echo sanitize($req['tracking_number']); ?></code>
+                                        <td class="ps-3">
+                                            <code class="fw-semibold text-primary font-monospace"><?php echo sanitize($req['tracking_number']); ?></code>
                                         </td>
-                                        <td><?php echo sanitize($req['document_name']); ?></td>
+                                        <td class="fw-medium text-dark"><?php echo sanitize($req['document_name']); ?></td>
                                         <td>
                                             <span class="badge <?php echo $status_class; ?>">
                                                 <?php echo sanitize($req['status']); ?>
                                             </span>
                                         </td>
-                                        <td class="text-muted small">
+                                        <td class="pe-3 text-muted small text-end">
                                             <?php echo date('M d, Y', strtotime($req['requested_at'])); ?>
                                         </td>
                                     </tr>
@@ -183,11 +194,13 @@ include __DIR__ . '/../includes/header.php';
                     </div>
                 <?php else: ?>
                     <div class="empty-state py-4">
-                        <i class="bi bi-inbox text-muted"></i>
-                        <h6 class="fw-semibold mb-1">No Document Requests Yet</h6>
-                        <p class="text-muted small mb-3">You have not submitted any academic document requests.</p>
-                        <a href="request_document.php" class="btn btn-primary btn-sm">
-                            Submit a Document Request
+                        <div class="d-inline-flex p-3 bg-light text-primary rounded-circle mb-3">
+                            <i class="bi bi-folder-plus fs-1"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">No Document Requests Yet</h6>
+                        <p class="text-muted small mb-3">You have not submitted any academic document requests yet.</p>
+                        <a href="<?php echo url('student/request_document.php'); ?>" class="btn btn-primary btn-sm px-3">
+                            <i class="bi bi-plus-lg me-1"></i>Submit a Request
                         </a>
                     </div>
                 <?php endif; ?>
@@ -197,4 +210,3 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
-

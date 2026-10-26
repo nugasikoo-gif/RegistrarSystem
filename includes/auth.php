@@ -22,6 +22,23 @@ function startSession() {
     }
 }
 
+// Automatically detect dynamic base path (e.g., /Registrar/Registrar-ike or /Registrar)
+if (!defined('BASE_URL')) {
+    $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    if (strpos($script, '/Registrar-ike') !== false) {
+        define('BASE_URL', '/Registrar/Registrar-ike');
+    } elseif (strpos($script, '/Registrar') !== false) {
+        define('BASE_URL', '/Registrar');
+    } else {
+        define('BASE_URL', '');
+    }
+}
+
+function url($path = '') {
+    $trimmed = ltrim($path, '/');
+    return empty($trimmed) ? BASE_URL : BASE_URL . '/' . $trimmed;
+}
+
 // Check if user is logged in
 function isLoggedIn() {
     startSession();
@@ -31,7 +48,7 @@ function isLoggedIn() {
 // Redirect to login page if not logged in
 function requireLogin() {
     if (!isLoggedIn()) {
-        header("Location: /Registrar/login.php");
+        header("Location: " . url('login.php'));
         exit();
     }
 }
@@ -46,26 +63,26 @@ function requireRole($role) {
         // Redirect user to their correct dashboard if it exists
         switch ($_SESSION['role']) {
             case 'student':
-                header("Location: /Registrar/student/dashboard.php");
+                header("Location: " . url('student/dashboard.php'));
                 break;
             case 'staff':
                 if (file_exists(__DIR__ . '/../staff/dashboard.php')) {
-                    header("Location: /Registrar/staff/dashboard.php");
+                    header("Location: " . url('staff/dashboard.php'));
                 } else {
                     setFlashMessage('info', 'Staff module is currently under development (Phase 4).');
-                    header("Location: /Registrar/logout.php");
+                    header("Location: " . url('logout.php'));
                 }
                 break;
             case 'admin':
                 if (file_exists(__DIR__ . '/../admin/dashboard.php')) {
-                    header("Location: /Registrar/admin/dashboard.php");
+                    header("Location: " . url('admin/dashboard.php'));
                 } else {
                     setFlashMessage('info', 'Admin module is currently under development (Phase 5).');
-                    header("Location: /Registrar/logout.php");
+                    header("Location: " . url('logout.php'));
                 }
                 break;
             default:
-                header("Location: /Registrar/login.php");
+                header("Location: " . url('login.php'));
                 break;
         }
         exit();

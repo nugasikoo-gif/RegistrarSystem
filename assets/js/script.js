@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
     
     navLinks.forEach(function(link) {
-        if (link.getAttribute('href') === currentPath) {
+        const href = link.getAttribute('href');
+        if (href && (href === currentPath || currentPath.endsWith(href))) {
             link.classList.add('active');
         }
     });

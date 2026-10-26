@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $conn->commit();
                     
                     setFlashMessage('success', "Document request submitted successfully! Your tracking number is {$tracking_number}.");
-                    header("Location: my_requests.php");
+                    header("Location: " . url('student/my_requests.php'));
                     exit();
                     
                 } catch (Exception $e) {
@@ -112,15 +112,21 @@ include __DIR__ . '/../includes/header.php';
     <div class="col-lg-8">
         <!-- Back Navigation -->
         <div class="mb-3">
-            <a href="dashboard.php" class="text-decoration-none small text-muted">
+            <a href="<?php echo url('student/dashboard.php'); ?>" class="text-decoration-none small text-muted">
                 <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
             </a>
         </div>
 
-        <div class="card">
-            <div class="card-header bg-white">
-                <h5 class="mb-1"><i class="bi bi-file-earmark-plus text-primary me-2"></i>Request Academic Document</h5>
-                <small class="text-muted">Fill out the details below to submit a document application to the Registrar</small>
+        <div class="portal-section-header">
+            <h3 class="portal-section-title">Request Academic Document</h3>
+            <p class="text-muted small mb-0">Fill in the application details below to submit an official request to the Registrar's Office.</p>
+            <div class="portal-title-bar"></div>
+        </div>
+
+        <div class="card shadow-sm border">
+            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                <img src="<?php echo url('assets/images/ctu-logo.png?v=3'); ?>" alt="CTU Logo" style="width: 28px; height: 28px; object-fit: contain;">
+                <span class="fw-semibold text-dark">Document Application Form</span>
             </div>
             
             <div class="card-body p-4">
@@ -135,38 +141,42 @@ include __DIR__ . '/../includes/header.php';
                     <input type="hidden" name="csrf_token" value="<?php echo sanitize($csrf_token); ?>">
 
                     <!-- Document Type Dropdown -->
-                    <div class="mb-3">
-                        <label for="document_type_id" class="form-label">Select Document Type <span class="text-danger">*</span></label>
-                        <select class="form-select" id="document_type_id" name="document_type_id" required>
-                            <option value="">-- Choose a document --</option>
+                    <div class="mb-4">
+                        <label for="document_type_id" class="form-label fw-semibold">
+                            Select Document Type <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select py-2" id="document_type_id" name="document_type_id" required>
+                            <option value="">-- Select an official academic document --</option>
                             <?php while ($doc = $doc_types_result->fetch_assoc()): ?>
                                 <option value="<?php echo $doc['id']; ?>" <?php echo (isset($_POST['document_type_id']) && $_POST['document_type_id'] == $doc['id']) ? 'selected' : ''; ?>>
                                     <?php echo sanitize($doc['document_name']); ?>
                                 </option>
                             <?php endwhile; ?>
                         </select>
-                        <div class="form-text">Choose the official academic document you need.</div>
+                        <div class="form-text">Choose the specific document you require from the campus Registrar.</div>
                     </div>
 
                     <!-- Purpose Textarea -->
                     <div class="mb-4">
-                        <label for="purpose" class="form-label">Purpose of Request <span class="text-danger">*</span></label>
+                        <label for="purpose" class="form-label fw-semibold">
+                            Purpose of Request <span class="text-danger">*</span>
+                        </label>
                         <textarea class="form-control" id="purpose" name="purpose" rows="4" 
-                                  placeholder="e.g. Scholarship application, employment requirement, board examination, transfer credentials..." required><?php echo sanitize($_POST['purpose'] ?? ''); ?></textarea>
-                        <div class="form-text">Clearly state why you need this document so staff can evaluate your request.</div>
+                                  placeholder="e.g. Scholarship application, employment requirement, board exam credentials, transfer records..." required><?php echo sanitize($_POST['purpose'] ?? ''); ?></textarea>
+                        <div class="form-text">Clearly describe the purpose for record verification and evaluation.</div>
                     </div>
 
-                    <!-- Important Notice -->
-                    <div class="alert alert-info py-2 small mb-4">
-                        <i class="bi bi-info-circle me-1"></i>
-                        <strong>Note:</strong> Standard document processing takes 2 to 3 working days. Once your document status changes to <em>"Ready for Pickup"</em>, generate a queue ticket to claim it at the Registrar's Office.
+                    <!-- Guidance Notice Box -->
+                    <div class="p-3 bg-light border rounded-3 small mb-4 text-secondary">
+                        <div class="fw-semibold text-dark mb-1"><i class="bi bi-info-circle text-primary me-1"></i>Processing Guidelines:</div>
+                        Official document processing typically takes 2 to 3 business days. You will receive an in-app notification when your document transitions to <strong>"Ready for Pickup"</strong>. Once ready, generate a queue ticket and claim your copy at the counter.
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="dashboard.php" class="btn btn-outline-secondary">Cancel</a>
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                        <a href="<?php echo url('student/dashboard.php'); ?>" class="btn btn-outline-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-send me-1"></i>Submit Request
+                            <i class="bi bi-send me-1"></i>Submit Application
                         </button>
                     </div>
                 </form>
@@ -176,4 +186,3 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
-

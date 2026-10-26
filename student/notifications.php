@@ -38,31 +38,35 @@ include __DIR__ . '/../includes/header.php';
 <div class="row justify-content-center">
     <div class="col-lg-8">
         
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div>
-                <h3 class="mb-1">Notifications</h3>
-                <p class="text-muted small mb-0">System updates on your document applications and queues</p>
+                <div class="portal-section-header mb-0">
+                    <h3 class="portal-section-title">Notifications Feed</h3>
+                    <p class="text-muted small mb-0">Real-time status updates on your document applications and counter tickets</p>
+                    <div class="portal-title-bar"></div>
+                </div>
             </div>
             <div>
-                <span class="badge bg-light text-dark border"><?php echo $notifications->num_rows; ?> Total</span>
+                <span class="badge bg-light text-dark border px-3 py-2"><?php echo $notifications->num_rows; ?> Total</span>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header bg-white">
-                <span class="fw-semibold"><i class="bi bi-bell text-primary me-2"></i>Activity Feed</span>
+        <div class="card shadow-sm border">
+            <div class="card-header bg-white py-3 border-bottom d-flex align-items-center gap-2">
+                <i class="bi bi-bell text-primary fs-5"></i>
+                <span class="fw-semibold text-dark">Recent Activity</span>
             </div>
 
             <div class="card-body p-0">
                 <?php if ($notifications->num_rows > 0): ?>
                     <div class="list-group list-group-flush">
                         <?php while ($notif = $notifications->fetch_assoc()): ?>
-                            <div class="notification-item d-flex align-items-start gap-3">
-                                <div class="p-2 bg-light text-primary rounded-circle mt-1">
-                                    <i class="bi bi-info-circle-fill"></i>
+                            <div class="notification-item d-flex align-items-start gap-3 py-3 px-4">
+                                <div class="p-2 bg-primary-subtle text-primary rounded-circle mt-1 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                    <i class="bi bi-bell-fill"></i>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <div class="text-dark mb-1">
+                                    <div class="text-dark fw-medium mb-1" style="line-height: 1.45;">
                                         <?php echo sanitize($notif['message']); ?>
                                     </div>
                                     <div class="text-muted small">
@@ -74,10 +78,12 @@ include __DIR__ . '/../includes/header.php';
                         <?php endwhile; ?>
                     </div>
                 <?php else: ?>
-                    <div class="empty-state py-5">
-                        <i class="bi bi-bell-slash text-muted"></i>
-                        <h5 class="fw-semibold mb-1">No Notifications Yet</h5>
-                        <p class="text-muted small mb-0">You will receive notifications here when staff updates your documents or calls your queue.</p>
+                    <div class="empty-state py-5 text-center">
+                        <div class="d-inline-flex p-3 bg-light text-primary rounded-circle mb-3">
+                            <i class="bi bi-bell-slash fs-1"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1">No Notifications Yet</h6>
+                        <p class="text-muted small mb-0">You will receive notifications here once your document request is reviewed or your queue number is called.</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -87,4 +93,3 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
-

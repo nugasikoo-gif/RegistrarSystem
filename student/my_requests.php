@@ -33,34 +33,37 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
-        <h3 class="mb-1">My Document Requests</h3>
-        <p class="text-muted small mb-0">Track status updates and history of your document applications</p>
+        <div class="portal-section-header mb-0">
+            <h3 class="portal-section-title">My Document Requests</h3>
+            <p class="text-muted small mb-0">Track the real-time processing and pickup status of your submitted applications</p>
+            <div class="portal-title-bar"></div>
+        </div>
     </div>
     <div>
-        <a href="request_document.php" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-1"></i>New Request
+        <a href="<?php echo url('student/request_document.php'); ?>" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>New Application
         </a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-folder2-open text-primary me-2"></i>Submitted Requests</span>
-        <span class="badge bg-light text-dark border"><?php echo $requests_result->num_rows; ?> Total</span>
+<div class="card shadow-sm border">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-dark"><i class="bi bi-folder2-open text-primary me-2"></i>Submitted Requests</span>
+        <span class="badge bg-light text-dark border px-2 py-1"><?php echo $requests_result->num_rows; ?> Total</span>
     </div>
 
     <div class="card-body p-0">
         <?php if ($requests_result->num_rows > 0): ?>
             <div class="table-responsive border-0">
-                <table class="table align-middle">
-                    <thead>
+                <table class="table align-middle mb-0">
+                    <thead class="bg-light">
                         <tr>
-                            <th>Tracking #</th>
-                            <th>Document</th>
-                            <th>Purpose</th>
-                            <th>Status</th>
-                            <th>Requested On</th>
-                            <th>Staff Remarks</th>
+                            <th class="ps-3 py-2 text-muted small fw-semibold">Tracking #</th>
+                            <th class="py-2 text-muted small fw-semibold">Document</th>
+                            <th class="py-2 text-muted small fw-semibold">Purpose</th>
+                            <th class="py-2 text-muted small fw-semibold">Status</th>
+                            <th class="py-2 text-muted small fw-semibold">Date Submitted</th>
+                            <th class="pe-3 py-2 text-muted small fw-semibold">Staff Remarks</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,16 +78,16 @@ include __DIR__ . '/../includes/header.php';
                             };
                         ?>
                             <tr>
-                                <td>
-                                    <code class="fw-bold text-primary"><?php echo sanitize($row['tracking_number']); ?></code>
+                                <td class="ps-3">
+                                    <code class="fw-bold text-primary font-monospace"><?php echo sanitize($row['tracking_number']); ?></code>
                                 </td>
-                                <td class="fw-medium">
+                                <td class="fw-medium text-dark">
                                     <?php echo sanitize($row['document_name']); ?>
                                 </td>
                                 <td class="small text-muted" style="max-width: 240px;">
                                     <?php 
                                         $purpose_text = sanitize($row['purpose']);
-                                        echo strlen($purpose_text) > 60 ? substr($purpose_text, 0, 60) . '...' : $purpose_text; 
+                                        echo strlen($purpose_text) > 65 ? substr($purpose_text, 0, 65) . '...' : $purpose_text; 
                                     ?>
                                 </td>
                                 <td>
@@ -92,14 +95,15 @@ include __DIR__ . '/../includes/header.php';
                                         <?php echo sanitize($row['status']); ?>
                                     </span>
                                 </td>
-                                <td class="small text-muted">
-                                    <?php echo date('M d, Y h:i A', strtotime($row['requested_at'])); ?>
+                                <td class="text-muted small">
+                                    <?php echo date('M d, Y', strtotime($row['requested_at'])); ?>
                                 </td>
-                                <td class="small">
+                                <td class="pe-3 small text-secondary">
                                     <?php if (!empty($row['remarks'])): ?>
-                                        <span class="<?php echo $row['status'] === 'Rejected' ? 'text-danger' : 'text-muted'; ?>">
-                                            <i class="bi bi-chat-left-dots me-1"></i><?php echo sanitize($row['remarks']); ?>
-                                        </span>
+                                        <div class="p-2 bg-light border rounded-2">
+                                            <i class="bi bi-chat-left-dots text-primary me-1"></i>
+                                            <?php echo sanitize($row['remarks']); ?>
+                                        </div>
                                     <?php else: ?>
                                         <span class="text-muted">&mdash;</span>
                                     <?php endif; ?>
@@ -110,12 +114,14 @@ include __DIR__ . '/../includes/header.php';
                 </table>
             </div>
         <?php else: ?>
-            <div class="empty-state py-5">
-                <i class="bi bi-inbox text-muted"></i>
-                <h5 class="fw-semibold mb-1">No Document Requests Found</h5>
-                <p class="text-muted small mb-3">You haven't submitted any document requests yet.</p>
-                <a href="request_document.php" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus-lg me-1"></i>Request a Document Now
+            <div class="empty-state py-5 text-center">
+                <div class="d-inline-flex p-3 bg-light text-primary rounded-circle mb-3">
+                    <i class="bi bi-inbox fs-1"></i>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">No Document Requests Found</h6>
+                <p class="text-muted small mb-3">You have not submitted any academic document applications yet.</p>
+                <a href="<?php echo url('student/request_document.php'); ?>" class="btn btn-primary btn-sm px-3">
+                    <i class="bi bi-plus-lg me-1"></i>Submit Document Request
                 </a>
             </div>
         <?php endif; ?>
@@ -123,4 +129,3 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
-
