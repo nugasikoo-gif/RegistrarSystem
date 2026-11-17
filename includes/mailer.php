@@ -18,11 +18,13 @@ require_once __DIR__ . '/../vendor/PHPMailer/SMTP.php';
  * @param string $student_name Full name of the student
  * @param string $tracking_number Document tracking number
  * @param string $document_name Name of requested document
- * @param string $new_status New status (Approved, Rejected, Ready for Pickup, etc.)
+ * @param string $new_status New status (Approved, Rejected, Ready for Pickup, Completed, etc.)
  * @param string|null $remarks Optional remarks from registrar staff
+ * @param float $fee Applicable document fee
+ * @param string $requirements Physical requirements list
  * @return array ['success' => bool, 'message' => string]
  */
-function sendDocumentStatusEmail($recipient_email, $student_name, $tracking_number, $document_name, $new_status, $remarks = '') {
+function sendDocumentStatusEmail($recipient_email, $student_name, $tracking_number, $document_name, $new_status, $remarks = '', $fee = 0.00, $requirements = '') {
     if (empty($recipient_email) || !filter_var($recipient_email, FILTER_VALIDATE_EMAIL)) {
         return ['success' => false, 'message' => 'Invalid or missing recipient email address.'];
     }
@@ -61,7 +63,7 @@ function sendDocumentStatusEmail($recipient_email, $student_name, $tracking_numb
         if ($new_status === 'Approved' || $new_status === 'Completed') {
             $status_color = '#198754'; // Green
         } elseif ($new_status === 'Ready for Pickup') {
-            $status_color = '#0dcaf0'; // Cyan/Teal
+            $status_color = '#059669'; // Emerald Green
         } elseif ($new_status === 'Rejected') {
             $status_color = '#dc3545'; // Red
         }
@@ -82,11 +84,37 @@ function sendDocumentStatusEmail($recipient_email, $student_name, $tracking_numb
             ";
         }
 
-        // Email Body HTML matching CTU Brand
+        // Instructions block
         $safe_name = htmlspecialchars($student_name, ENT_QUOTES, 'UTF-8');
         $safe_tracking = htmlspecialchars($tracking_number, ENT_QUOTES, 'UTF-8');
         $safe_doc = htmlspecialchars($document_name, ENT_QUOTES, 'UTF-8');
         $safe_status = htmlspecialchars($new_status, ENT_QUOTES, 'UTF-8');
+        $fee_formatted = number_format(floatval($fee), 2);
+
+        $instructions_html = '';
+        if ($new_status === 'Ready for Pickup') {
+            $reqs_display = !empty($requirements) ? nl2br(htmlspecialchars($requirements, ENT_QUOTES, 'UTF-8')) : '• Valid Student ID or Government ID';
+            $instructions_html = "
+                <div style='margin-top: 24px; padding: 18px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px;'>
+                    <strong style='color: #065f46; font-size: 14px; display: block; margin-bottom: 8px;'>
+                        🔔 Document Claiming & Payment Instructions
+                    </strong>
+                    <p style='margin: 0 0 10px; color: #047857; font-size: 14px; line-height: 1.5;'>
+                        Your requested document is ready for pickup. Please proceed to the school cashier to pay the applicable document fee (<strong>₱$fee_formatted</strong>). Bring your original official receipt and all required physical documents when claiming your document at the Registrar Office.
+                    </p>
+                    <div style='background: #ffffff; padding: 12px; border-radius: 6px; border: 1px solid #d1fae5; margin-top: 10px;'>
+                        <strong style='color: #1e293b; font-size: 12px; text-transform: uppercase;'>Required Physical Documents to Present:</strong>
+                        <div style='font-size: 13px; color: #334155; margin-top: 6px; line-height: 1.5;'>$reqs_display</div>
+                    </div>
+                </div>
+            ";
+        } else {
+            $instructions_html = "
+                <div style='margin-top: 24px; padding-top: 18px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;'>
+                    You can monitor real-time processing and counter updates anytime through the CTU Student Portal.
+                </div>
+            ";
+        }
 
         $mail->Body = "
         <!DOCTYPE html>
@@ -135,18 +163,17 @@ function sendDocumentStatusEmail($recipient_email, $student_name, $tracking_numb
                             <td class='val'>$safe_doc</td>
                         </tr>
                         <tr>
+                            <td class='label'>Applicable Cashier Fee</td>
+                            <td class='val'>₱$fee_formatted</td>
+                        </tr>
+                        <tr>
                             <td class='label'>Notification Sent To</td>
                             <td class='val'>$recipient_email</td>
                         </tr>
                     </table>
 
                     $remarks_html
-
-                    <div style='margin-top: 28px; padding-top: 20px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; line-height: 1.5;'>
-                        " . ($new_status === 'Ready for Pickup' ? 
-                            "<strong>Pickup Instructions:</strong> Please present your valid CTU Student ID card and this tracking number ($safe_tracking) at the Registrar's Office Counter during regular office hours." : 
-                            "You can check real-time progress by logging into the CTU Student Portal.") . "
-                    </div>
+                    $instructions_html
                 </div>
                 <div class='email-footer'>
                     &copy; " . date('Y') . " Cebu Technological University - Daanbantayan Campus<br>
@@ -157,7 +184,11 @@ function sendDocumentStatusEmail($recipient_email, $student_name, $tracking_numb
         </html>
         ";
 
-        $mail->AltBody = "Hello $student_name,\n\nYour document request ($tracking_number - $document_name) status has been updated to: $new_status.\n\n" . (!empty($remarks) ? "Remarks: $remarks\n\n" : "") . "Please log in to the student portal for details.\n\nCTU Registrar Office";
+        if ($new_status === 'Ready for Pickup') {
+            $mail->AltBody = "Hello $student_name,\n\nYour requested document is ready for pickup. Please proceed to the school cashier to pay the applicable document fee (₱$fee_formatted). Bring your original official receipt and all required physical documents when claiming your document at the Registrar Office.\n\nTracking #: $tracking_number\nDocument: $document_name\n\nCTU Registrar Office";
+        } else {
+            $mail->AltBody = "Hello $student_name,\n\nYour document request ($tracking_number - $document_name) status has been updated to: $new_status.\n\n" . (!empty($remarks) ? "Remarks: $remarks\n\n" : "") . "Please log in to the student portal for details.\n\nCTU Registrar Office";
+        }
 
         $mail->send();
         return ['success' => true, 'message' => 'Notification email sent successfully.'];
@@ -166,4 +197,3 @@ function sendDocumentStatusEmail($recipient_email, $student_name, $tracking_numb
         return ['success' => false, 'message' => 'Mailer Error: ' . $mail->ErrorInfo];
     }
 }
-

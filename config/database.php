@@ -19,14 +19,15 @@ $db_user = 'root';            // Default MySQL username in XAMPP
 $db_pass = '';                 // Default MySQL password in XAMPP (empty)
 $db_name = 'ctu_registrar_system';  // Our database name
 
-// Create connection
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+// Create connection if not already provided (supports test mocking)
+if (!isset($conn)) {
+    $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
-// Check if connection was successful
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    // Check if connection was successful
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Set character encoding to handle special characters properly
+    $conn->set_charset("utf8mb4");
 }
-
-// Set character encoding to handle special characters properly
-$conn->set_charset("utf8mb4");
-

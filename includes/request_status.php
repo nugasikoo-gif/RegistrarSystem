@@ -19,9 +19,10 @@ require_once __DIR__ . '/mailer.php';
 function updateDocumentRequestStatus($request_id, $new_status, $remarks = '') {
     global $conn;
 
-    // Fetch existing request and student details
+    // Fetch existing request and student details including fee and requirements
     $sql = "SELECT dr.id, dr.user_id, dr.tracking_number, dr.status, dr.remarks, dr.last_notified_status,
-                   u.full_name, u.email, u.personal_gmail, dt.document_name
+                   u.full_name, u.email, u.personal_gmail, 
+                   dt.document_name, dt.fee, dt.requirements
             FROM document_requests dr
             JOIN users u ON dr.user_id = u.id
             JOIN document_types dt ON dr.document_type_id = dt.id
@@ -50,17 +51,25 @@ function updateDocumentRequestStatus($request_id, $new_status, $remarks = '') {
         return ['success' => false, 'message' => 'Failed to update document status in database.', 'email_sent' => false, 'email_error' => ''];
     }
 
-    // Also insert into in-app notifications table
-    $notif_msg = "Your document request (" . $request['document_name'] . " - " . $request['tracking_number'] . ") status changed to: " . $new_status . ".";
-    if (!empty($remarks)) {
+    // Build specific in-app notification message
+    if ($new_status === 'Ready for Pickup') {
+        $notif_msg = "Your requested document ({$request['document_name']} - {$request['tracking_number']}) is ready for pickup. Please proceed to the school cashier to pay the applicable document fee (₱" . number_format($request['fee'] ?? 0, 2) . "). Bring your original official receipt and all required physical documents when claiming your document at the Registrar Office.";
+    } elseif ($new_status === 'Completed') {
+        $notif_msg = "Your document ({$request['document_name']} - {$request['tracking_number']}) has been successfully released and claimed. Thank you!";
+    } else {
+        $notif_msg = "Your document request (" . $request['document_name'] . " - " . $request['tracking_number'] . ") status changed to: " . $new_status . ".";
+    }
+
+    if (!empty($remarks) && $new_status !== 'Ready for Pickup') {
         $notif_msg .= " Remarks: " . $remarks;
     }
+
     $notif_stmt = $conn->prepare("INSERT INTO notifications (user_id, message) VALUES (?, ?)");
     $notif_stmt->bind_param("is", $request['user_id'], $notif_msg);
     $notif_stmt->execute();
     $notif_stmt->close();
 
-    // Trigger statuses for email notifications: Approved, Rejected, Ready for Pickup
+    // Trigger statuses for email notifications: Approved, Rejected, Ready for Pickup, Completed
     $email_trigger_statuses = ['Approved', 'Ready for Pickup', 'Rejected', 'Completed'];
 
     $email_sent = false;
@@ -69,7 +78,6 @@ function updateDocumentRequestStatus($request_id, $new_status, $remarks = '') {
     // Only send email if:
     // 1. Status is in trigger list
     // 2. Status has changed from previous AND hasn't already been notified
-    // 3. User has a valid personal_gmail (or fallback email if gmail is not set)
     $should_notify = in_array($new_status, $email_trigger_statuses) && ($new_status !== $last_notified);
 
     if ($should_notify) {
@@ -81,7 +89,9 @@ function updateDocumentRequestStatus($request_id, $new_status, $remarks = '') {
             $request['tracking_number'],
             $request['document_name'],
             $new_status,
-            $remarks
+            $remarks,
+            $request['fee'] ?? 0.00,
+            $request['requirements'] ?? ''
         );
 
         if ($mail_result['success']) {
@@ -103,4 +113,3 @@ function updateDocumentRequestStatus($request_id, $new_status, $remarks = '') {
         'email_error' => $email_error
     ];
 }
-

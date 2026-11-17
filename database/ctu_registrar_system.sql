@@ -49,7 +49,7 @@ CREATE TABLE `document_requests` (
   `document_type_id` INT NOT NULL,
   `tracking_number` VARCHAR(20) NOT NULL,
   `purpose` TEXT NOT NULL,
-  `status` ENUM('Pending', 'Processing', 'Ready for Pickup', 'Completed', 'Rejected') NOT NULL DEFAULT 'Pending',
+  `status` ENUM('Pending', 'Processing', 'Approved', 'Ready for Pickup', 'Completed', 'Rejected') NOT NULL DEFAULT 'Pending',
   `remarks` TEXT DEFAULT NULL,
   `requested_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -109,4 +109,5 @@ INSERT INTO `document_types` (`document_name`, `description`, `is_active`) VALUE
 ('Certificate of Grades',        'Official certificate showing grades for a specific semester.',         1),
 ('Good Moral Certificate',       'Certificate of good moral character.',                                1),
 ('Certification of Graduation',  'Certifies that the student has completed their degree program.',      1);
+
 

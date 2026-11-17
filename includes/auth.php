@@ -22,15 +22,26 @@ function startSession() {
     }
 }
 
-// Automatically detect dynamic base path (e.g., /Registrar/Registrar-ike or /Registrar)
+// Automatically detect dynamic base path based on directory location
 if (!defined('BASE_URL')) {
     $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
-    if (strpos($script, '/Registrar-ike') !== false) {
-        define('BASE_URL', '/Registrar/Registrar-ike');
-    } elseif (strpos($script, '/Registrar') !== false) {
-        define('BASE_URL', '/Registrar');
+    // Determine the root directory relative to web server document root
+    $docRoot = str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'] ?? ''));
+    $projectDir = str_replace('\\', '/', realpath(__DIR__ . '/..'));
+    
+    if (!empty($docRoot) && !empty($projectDir) && str_starts_with($projectDir, $docRoot)) {
+        $subPath = trim(substr($projectDir, strlen($docRoot)), '/');
+        define('BASE_URL', empty($subPath) ? '' : '/' . $subPath);
     } else {
-        define('BASE_URL', '');
+        // Fallback detection using SCRIPT_NAME parts
+        $pos = strpos($script, '/includes');
+        if ($pos !== false) {
+            define('BASE_URL', substr($script, 0, $pos));
+        } else {
+            // Get first directory level from script
+            $parts = explode('/', trim($script, '/'));
+            define('BASE_URL', !empty($parts[0]) && !str_ends_with($parts[0], '.php') ? '/' . $parts[0] : '');
+        }
     }
 }
 
@@ -169,4 +180,170 @@ function getFlashMessage() {
     }
     return null;
 }
+
+/**
+ * Validate that an email belongs to the official CTU domain (@ctu.edu.ph or *.ctu.edu.ph)
+ * 
+ * Rejects unofficial email domains (e.g., gmail.com, yahoo.com, outlook.com, hotmail.com).
+ * 
+ * @param string $email
+ * @return bool
+ */
+function isValidCtuEmail($email) {
+    if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    $parts = explode('@', strtolower(trim($email)));
+    if (count($parts) !== 2) {
+        return false;
+    }
+    $domain = $parts[1];
+    return ($domain === 'ctu.edu.ph' || str_ends_with($domain, '.ctu.edu.ph'));
+}
+
+/**
+ * Check if a string contains predictable sequences of 4 or more consecutive characters
+ * e.g., 1234, 4321, abcd, dcba, qwerty
+ * 
+ * @param string $str
+ * @return bool
+ */
+function hasPredictableSequence($str) {
+    $lower = strtolower($str);
+    
+    // Common keyboard sequences
+    $keyboard_patterns = ['qwerty', 'asdfgh', 'zxcvbn', 'ytrewq', 'hgfdsa', 'nbvcxz'];
+    foreach ($keyboard_patterns as $kp) {
+        if (strpos($lower, $kp) !== false) {
+            return true;
+        }
+    }
+    
+    // Check 4-character sequential runs (numeric or alphabetical)
+    $len = strlen($lower);
+    if ($len >= 4) {
+        for ($i = 0; $i <= $len - 4; $i++) {
+            $c1 = ord($lower[$i]);
+            $c2 = ord($lower[$i+1]);
+            $c3 = ord($lower[$i+2]);
+            $c4 = ord($lower[$i+3]);
+            
+            // Ascending sequence (e.g. 1-2-3-4 or a-b-c-d)
+            if ($c2 === $c1 + 1 && $c3 === $c2 + 1 && $c4 === $c3 + 1) {
+                if ((ctype_digit($lower[$i]) && ctype_digit($lower[$i+3])) || 
+                    (ctype_lower($lower[$i]) && ctype_lower($lower[$i+3]))) {
+                    return true;
+                }
+            }
+            // Descending sequence (e.g. 4-3-2-1 or d-c-b-a)
+            if ($c2 === $c1 - 1 && $c3 === $c2 - 1 && $c4 === $c3 - 1) {
+                if ((ctype_digit($lower[$i]) && ctype_digit($lower[$i+3])) || 
+                    (ctype_lower($lower[$i]) && ctype_lower($lower[$i+3]))) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Strict Student-Only Strong Password Policy Validator
+ * 
+ * Enforces:
+ * 1. Minimum 12 characters.
+ * 2. At least one uppercase letter (A-Z).
+ * 3. At least one lowercase letter (a-z).
+ * 4. At least one number (0-9).
+ * 5. At least one special character.
+ * 6. Block common and easily guessed passwords.
+ * 7. Reject predictable sequences (1234, abcd, qwerty) and repeated characters (aaa, 111).
+ * 8. Reject passwords containing obvious variations of the student's email username or full name.
+ * 
+ * NOTE: This policy is strictly for students and is NEVER applied to Staff or Admin.
+ * 
+ * @param string $password The raw password to validate
+ * @param string $email The student's login email
+ * @param string $fullName The student's full name
+ * @return array ['valid' => bool, 'errors' => string[]]
+ */
+function validateStudentStrongPassword($password, $email = '', $fullName = '') {
+    $errors = [];
+    
+    if (strlen($password) < 12) {
+        $errors[] = 'Password must be at least 12 characters long.';
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = 'Password must include at least one uppercase letter (A-Z).';
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $errors[] = 'Password must include at least one lowercase letter (a-z).';
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $errors[] = 'Password must include at least one number (0-9).';
+    }
+    if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+        $errors[] = 'Password must include at least one special character (e.g. !@#$%^&*()_+-=[]{};:|,.<>?).';
+    }
+    
+    // Repeated character check (3 or more consecutive identical characters)
+    if (preg_match('/(.)\1{2,}/', $password)) {
+        $errors[] = 'Password must not contain repeated characters (e.g. "aaa" or "111").';
+    }
+    
+    // Predictable sequence check (1234, abcd, qwerty, etc.)
+    if (hasPredictableSequence($password)) {
+        $errors[] = 'Password must not contain predictable sequences (e.g. "1234", "abcd", or "qwerty").';
+    }
+    
+    // Common easily guessed passwords blacklist
+    $common_passwords = [
+        'password', 'password123', 'password1234', 'password12345',
+        'pass12345678', 'admin1234567', 'qwerty123456', 'qwertyuiop12',
+        'welcome12345', 'ctu_registrar', 'ctudaanbantayan', 'student12345',
+        'changeme1234', '123456789012', '1234567890123', 'iloveyou1234',
+        'letmein12345', 'secret123456', 'administrator', 'default12345',
+        'p@ssword1234', 'passw0rd1234', 'ctuportal1234', 'registrarsystem'
+    ];
+    $pwd_lower = strtolower($password);
+    foreach ($common_passwords as $common) {
+        if ($pwd_lower === $common || strpos($pwd_lower, $common) !== false) {
+            $errors[] = 'Password is too common or easily guessed. Please create a unique passphrase.';
+            break;
+        }
+    }
+    
+    // Reject obvious variations of email username
+    if (!empty($email)) {
+        $email_parts = explode('@', strtolower($email));
+        $username = $email_parts[0] ?? '';
+        $tokens = preg_split('/[\._\-\d]+/', $username);
+        $tokens[] = preg_replace('/[^a-z0-9]/', '', $username);
+        foreach ($tokens as $token) {
+            $token = trim($token);
+            if (strlen($token) >= 3 && strpos($pwd_lower, $token) !== false) {
+                $errors[] = 'Password must not contain parts of your email username ("' . $token . '").';
+                break;
+            }
+        }
+    }
+    
+    // Reject obvious variations of full name
+    if (!empty($fullName)) {
+        $name_tokens = preg_split('/[\s,\.\-_]+/', strtolower($fullName));
+        foreach ($name_tokens as $ntoken) {
+            $ntoken = trim($ntoken);
+            if (strlen($ntoken) >= 3 && strpos($pwd_lower, $ntoken) !== false) {
+                $errors[] = 'Password must not contain your name ("' . $ntoken . '").';
+                break;
+            }
+        }
+    }
+    
+    return [
+        'valid' => empty($errors),
+        'errors' => $errors
+    ];
+}
+
 

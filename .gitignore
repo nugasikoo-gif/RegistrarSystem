@@ -1,0 +1,28 @@
+# ============================================
+# CTU Registrar System - .gitignore
+# ============================================
+
+# Environment credentials (NEVER push real passwords)
+.env
+
+# Temporary test/debug scripts
+test_*.php
+scan_hardcoded.php
+schema_dump.txt
+
+# OS-generated files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+database/backup_*.sql
